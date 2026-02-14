@@ -7,9 +7,18 @@ export default function Index() {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "white",
       }}
     >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
+      <Text
+        style={{
+          fontSize: 24,
+          fontWeight: "bold",
+          color: "#7A0019", // Maroon accent
+        }}
+      >
+        Goldy Change
+      </Text>
     </View>
   );
 }
