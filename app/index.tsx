@@ -1,11 +1,13 @@
-import { useRouter } from 'expo-router';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Stack, useRouter } from 'expo-router';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ItemCard from '../components/ItemCard';
-import { items } from '../data/seedItems';
+import { useItems } from '../context/ItemsContext';
 
 export default function Index() {
   const router = useRouter();
+  const { items } = useItems();
 
   const handlePress = (id: string) => {
     router.push(`/item/${id}`);
@@ -19,6 +21,15 @@ export default function Index() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable onPress={() => router.push('/create')} style={styles.headerButton}>
+              <Ionicons name="add-circle-outline" size={28} color="#007AFF" />
+            </Pressable>
+          ),
+        }}
+      />
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
@@ -54,5 +65,8 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     color: '#929fa0ff',
+  },
+  headerButton: {
+    padding: 8,
   },
 });

@@ -1,10 +1,11 @@
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { items } from '../../data/seedItems';
+import { useItems } from '../../context/ItemsContext';
 
 export default function ItemDetail() {
     const { id } = useLocalSearchParams();
+    const { items } = useItems();
     const item = items.find((i) => i.id === id);
 
     if (!item) {
