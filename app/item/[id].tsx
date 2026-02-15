@@ -1,12 +1,11 @@
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useLayoutEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Markdown from "react-native-markdown-display";
+import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import EditItemForm from '../../components/EditItemForm';
 import { useItems } from '../../context/ItemsContext';
 import { Item } from '../../data/seedItems';
-import { generateRepairSteps } from "../../utils/ai";
+import { generateRepairSteps, RepairData } from "../../utils/ai";
 
 export default function ItemDetail() {
     const { id } = useLocalSearchParams();
@@ -14,7 +13,7 @@ export default function ItemDetail() {
     const navigation = useNavigation();
     const { items, updateItem } = useItems();
     const [isEditing, setIsEditing] = useState(false);
-    const [repairSteps, setRepairSteps] = useState<string | null>(null);
+    const [repairData, setRepairData] = useState<RepairData | null>(null);
     const [loading, setLoading] = useState(false);
 
     const item = items.find((i) => i.id === itemId);
@@ -31,6 +30,7 @@ export default function ItemDetail() {
             title: isEditing ? "Edit Item" : (item?.title || "Item Detail"),
         });
     }, [navigation, isEditing, item?.title, item]);
+
 
     if (!item) {
         return (
@@ -49,13 +49,13 @@ export default function ItemDetail() {
 
     const handleGenerateRepairSteps = async () => {
         setLoading(true);
-        setRepairSteps(null);
+        setRepairData(null);
         try {
-            const steps = await generateRepairSteps(item);
-            setRepairSteps(steps);
+            const data = await generateRepairSteps(item);
+            setRepairData(data);
         } catch (error) {
             console.error(error);
-            setRepairSteps("Failed to generate repair steps. Please try again.");
+            // Ideally show error toast
         } finally {
             setLoading(false);
         }
@@ -96,6 +96,12 @@ export default function ItemDetail() {
                             <Text style={styles.badgeLabel}>Location</Text>
                             <Text style={styles.badgeValue}>{item.campusArea}</Text>
                         </View>
+                        {item.email && (
+                            <View style={styles.badge}>
+                                <Text style={styles.badgeLabel}>Contact</Text>
+                                <Text style={styles.badgeValue} numberOfLines={1}>{item.email}</Text>
+                            </View>
+                        )}
                     </View>
 
                     <Text style={styles.descriptionLabel}>Description</Text>
@@ -116,11 +122,56 @@ export default function ItemDetail() {
                             )}
                         </TouchableOpacity>
 
-                        {repairSteps && (
+                        {repairData && (
                             <View>
-                                <Text style={styles.repairTitle}>Repair Steps</Text>
-                                <View style={styles.markdownContainer}>
-                                    <Markdown style={markdownStyles}>{repairSteps}</Markdown>
+                                <Text style={styles.repairTitle}>Repair Guide</Text>
+
+                                {repairData.steps.map((step) => (
+                                    <View key={step.stepNumber} style={styles.stepCard}>
+                                        <Text style={styles.stepHeader}>Step {step.stepNumber}: {step.title}</Text>
+
+                                        <View style={styles.stepContent}>
+                                            <View style={styles.stepTextContainer}>
+                                                <Text style={styles.stepDescription}>{step.description}</Text>
+                                                {step.tools && step.tools.length > 0 && (
+                                                    <Text style={styles.toolsText}>Tools: {step.tools.join(", ")}</Text>
+                                                )}
+                                                {step.links && step.links.length > 0 && (
+                                                    <View style={styles.linksContainer}>
+                                                        {step.links.map((link, idx) => (
+                                                            <Text
+                                                                key={idx}
+                                                                style={styles.linkText}
+                                                                onPress={() => Linking.openURL(link.url)}
+                                                            >
+                                                                {link.text}
+                                                            </Text>
+                                                        ))}
+                                                    </View>
+                                                )}
+                                            </View>
+                                        </View>
+                                    </View>
+                                ))}
+
+                                <View style={styles.costTable}>
+                                    <Text style={styles.costTitle}>Estimated Costs</Text>
+                                    <View style={styles.tableHeader}>
+                                        <Text style={[styles.tableCell, styles.tableHeaderCell, { flex: 2 }]}>Item</Text>
+                                        <Text style={[styles.tableCell, styles.tableHeaderCell, { flex: 1 }]}>Cost</Text>
+                                        <Text style={[styles.tableCell, styles.tableHeaderCell, { flex: 1 }]}>Source</Text>
+                                    </View>
+                                    {repairData.costTable.map((item, idx) => (
+                                        <View key={idx} style={styles.tableRow}>
+                                            <Text style={[styles.tableCell, { flex: 2 }]}>{item.item}</Text>
+                                            <Text style={[styles.tableCell, { flex: 1 }]}>{item.cost}</Text>
+                                            <Text style={[styles.tableCell, { flex: 1 }]}>{item.source}</Text>
+                                        </View>
+                                    ))}
+                                    <View style={[styles.tableRow, styles.totalRow]}>
+                                        <Text style={[styles.tableCell, styles.totalText, { flex: 2 }]}>Total Estimated</Text>
+                                        <Text style={[styles.tableCell, styles.totalText, { flex: 2 }]}>{repairData.totalCost}</Text>
+                                    </View>
                                 </View>
                             </View>
                         )}
@@ -130,28 +181,6 @@ export default function ItemDetail() {
         </>
     );
 }
-
-const markdownStyles = {
-    body: {
-        fontSize: 16,
-        lineHeight: 24,
-        color: "#34495e",
-    },
-    heading3: {
-        fontSize: 18,
-        fontWeight: "bold" as const,
-        marginTop: 16,
-        marginBottom: 8,
-        color: "#2c3e50",
-    },
-    strong: {
-        fontWeight: "bold" as const,
-        color: "#2c3e50",
-    },
-    list_item: {
-        marginBottom: 8,
-    },
-};
 
 const styles = StyleSheet.create({
     container: {
@@ -237,6 +266,7 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: "#eee",
         paddingTop: 20,
+        paddingBottom: 40,
     },
     repairButton: {
         backgroundColor: "#25bd65",
@@ -251,15 +281,100 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     repairTitle: {
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: "bold",
-        marginBottom: 10,
+        marginBottom: 20,
         color: "#2c3e50",
     },
-    markdownContainer: {
-        backgroundColor: "#f8f9fa",
+    stepCard: {
+        backgroundColor: "#fff",
+        borderRadius: 12,
         padding: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: "#eee",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    stepHeader: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 12,
+        color: "#2c3e50",
+    },
+    stepContent: {
+        flexDirection: "row",
+        gap: 12,
+    },
+    stepTextContainer: {
+        flex: 1,
+    },
+    stepDescription: {
+        fontSize: 15,
+        lineHeight: 22,
+        color: "#34495e",
+        marginBottom: 8,
+    },
+    toolsText: {
+        fontSize: 13,
+        color: "#7f8c8d",
+        fontWeight: "500",
+        marginBottom: 8,
+        fontStyle: "italic",
+    },
+    linksContainer: {
+        flexDirection: "column",
+        gap: 4,
+    },
+    linkText: {
+        fontSize: 14,
+        color: "#007AFF",
+        textDecorationLine: "underline",
+    },
+    costTable: {
+        marginTop: 20,
+        borderWidth: 1,
+        borderColor: "#eee",
         borderRadius: 8,
+        overflow: "hidden",
+    },
+    costTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        padding: 12,
+        backgroundColor: "#f8f9fa",
+        color: "#2c3e50",
+    },
+    tableHeader: {
+        flexDirection: "row",
+        backgroundColor: "#f1f2f6",
+        borderBottomWidth: 1,
+        borderBottomColor: "#eee",
+    },
+    tableRow: {
+        flexDirection: "row",
+        borderBottomWidth: 1,
+        borderBottomColor: "#eee",
+    },
+    tableCell: {
+        padding: 10,
+        fontSize: 14,
+        color: "#34495e",
+    },
+    tableHeaderCell: {
+        fontWeight: "bold",
+        color: "#2c3e50",
+    },
+    totalRow: {
+        backgroundColor: "#f8f9fa",
+        borderBottomWidth: 0,
+    },
+    totalText: {
+        fontWeight: "bold",
+        fontSize: 15,
     },
     loadingContainer: {
         padding: 20,
