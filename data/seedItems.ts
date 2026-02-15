@@ -6,6 +6,7 @@ export interface Item {
   price: string;
   condition: string;
   campusArea: string;
+  email: string;
 }
 
 export const items: Item[] = [
@@ -17,6 +18,7 @@ export const items: Item[] = [
     price: '$40',
     condition: 'Good',
     campusArea: 'East Bank',
+    email: 'jdoe@umn.edu',
   },
   {
     id: '2',
@@ -26,6 +28,7 @@ export const items: Item[] = [
     price: '$25',
     condition: 'Fair',
     campusArea: 'Superblock',
+    email: 'student1@umn.edu',
   },
   {
     id: '3',
@@ -35,6 +38,7 @@ export const items: Item[] = [
     price: '$10',
     condition: 'Like New',
     campusArea: 'Mall Area',
+    email: 'chemstudent@umn.edu',
   },
   {
     id: '4',
@@ -44,6 +48,7 @@ export const items: Item[] = [
     price: '$15',
     condition: 'Excellent',
     campusArea: 'West Bank',
+    email: 'nightowl@umn.edu',
   },
   {
     id: '5',
@@ -53,6 +58,7 @@ export const items: Item[] = [
     price: '$60',
     condition: 'Used',
     campusArea: 'Dinkytown',
+    email: 'biker@umn.edu',
   },
   {
     id: '6',
@@ -62,5 +68,6 @@ export const items: Item[] = [
     price: '$80',
     condition: 'Good',
     campusArea: 'Stadium Village',
+    email: 'gamer1@umn.edu',
   },
 ];
