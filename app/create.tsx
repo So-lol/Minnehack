@@ -15,5 +15,3 @@ export default function CreateItem() {
         <ItemForm mode="add" onSubmit={handleCreate as any} />
     );
 }
-    );
-}
