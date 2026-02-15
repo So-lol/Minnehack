@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import {
     ActionSheetIOS,
     Alert,
+    Keyboard,
+    KeyboardAvoidingView,
     Platform,
     Pressable,
     ScrollView,
@@ -12,6 +14,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
+    TouchableWithoutFeedback,
     View
 } from 'react-native';
 import { Item } from '../data/seedItems';
@@ -30,6 +33,9 @@ export default function ItemForm({ mode, initialItem, onSubmit, onCancel }: Item
     const [condition, setCondition] = useState(initialItem?.condition || 'Good');
     const [campusArea, setCampusArea] = useState(initialItem?.campusArea || 'East Bank');
     const [description, setDescription] = useState(initialItem?.description || '');
+
+    const emailInputRef = React.useRef<TextInput>(null);
+    const descriptionInputRef = React.useRef<TextInput>(null);
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -99,103 +105,124 @@ export default function ItemForm({ mode, initialItem, onSubmit, onCancel }: Item
     const actionLabel = mode === 'add' ? 'Add' : 'Save';
 
     return (
-        <ScrollView style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>List Item</Text>
-            </View>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        >
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <ScrollView
+                    style={styles.container}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={styles.header}>
+                        <Text style={styles.headerTitle}>List Item</Text>
+                    </View>
 
-            <Pressable onPress={pickImage} style={styles.imageBox}>
-                {image ? (
-                    <Image source={typeof image === 'number' ? image : { uri: image }} style={styles.img} />
-                ) : (
-                    <Text style={styles.selectImageText}>Select Image</Text>
-                )}
-            </Pressable>
+                    <Pressable onPress={pickImage} style={styles.imageBox}>
+                        {image ? (
+                            <Image source={typeof image === 'number' ? image : { uri: image }} style={styles.img} />
+                        ) : (
+                            <Text style={styles.selectImageText}>Select Image</Text>
+                        )}
+                    </Pressable>
 
-            <Text style={styles.label}>Title</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Title"
-                value={title}
-                onChangeText={setTitle}
-            />
+                    <Text style={styles.label}>Title</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Title"
+                        value={title}
+                        onChangeText={setTitle}
+                        returnKeyType="next"
+                        onSubmitEditing={() => emailInputRef.current?.focus()}
+                        blurOnSubmit={false}
+                    />
 
-            <Text style={styles.label}>Email (UMN)</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="jdoe@umn.edu"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-            />
+                    <Text style={styles.label}>Email (UMN)</Text>
+                    <TextInput
+                        ref={emailInputRef}
+                        style={styles.input}
+                        placeholder="jdoe@umn.edu"
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        returnKeyType="next"
+                        onSubmitEditing={() => descriptionInputRef.current?.focus()}
+                        blurOnSubmit={false}
+                    />
 
-            <Text style={styles.label}>Condition</Text>
-            {Platform.OS === 'ios' ? (
-                <Pressable onPress={showConditionPicker} style={styles.input}>
-                    <Text>{condition}</Text>
-                </Pressable>
-            ) : (
-                <View style={styles.pickerContainer}>
-                    <Picker
-                        selectedValue={condition}
-                        onValueChange={(itemValue) => setCondition(itemValue)}
-                    >
-                        <Picker.Item label="Bad" value="Bad" />
-                        <Picker.Item label="Good" value="Good" />
-                        <Picker.Item label="Great" value="Great" />
-                        <Picker.Item label="Excellent" value="Excellent" />
-                        <Picker.Item label="Fair" value="Fair" />
-                        <Picker.Item label="Working" value="Working" />
-                        <Picker.Item label="Broken" value="Broken" />
-                        <Picker.Item label="For parts" value="For parts" />
-                    </Picker>
-                </View>
-            )}
+                    <Text style={styles.label}>Condition</Text>
+                    {Platform.OS === 'ios' ? (
+                        <Pressable onPress={showConditionPicker} style={styles.input}>
+                            <Text>{condition}</Text>
+                        </Pressable>
+                    ) : (
+                        <View style={styles.pickerContainer}>
+                            <Picker
+                                selectedValue={condition}
+                                onValueChange={(itemValue) => setCondition(itemValue)}
+                            >
+                                <Picker.Item label="Bad" value="Bad" />
+                                <Picker.Item label="Good" value="Good" />
+                                <Picker.Item label="Great" value="Great" />
+                                <Picker.Item label="Excellent" value="Excellent" />
+                                <Picker.Item label="Fair" value="Fair" />
+                                <Picker.Item label="Working" value="Working" />
+                                <Picker.Item label="Broken" value="Broken" />
+                                <Picker.Item label="For parts" value="For parts" />
+                            </Picker>
+                        </View>
+                    )}
 
-            <Text style={styles.label}>Location</Text>
-            {Platform.OS === 'ios' ? (
-                <Pressable onPress={showLocationPicker} style={styles.input}>
-                    <Text>{campusArea}</Text>
-                </Pressable>
-            ) : (
-                <View style={styles.pickerContainer}>
-                    <Picker
-                        selectedValue={campusArea}
-                        onValueChange={(itemValue) => setCampusArea(itemValue)}
-                    >
-                        <Picker.Item label="East Bank" value="East Bank" />
-                        <Picker.Item label="West Bank" value="West Bank" />
-                        <Picker.Item label="St Paul" value="St Paul" />
-                        <Picker.Item label="Superblock" value="Superblock" />
-                        <Picker.Item label="Dinkytown" value="Dinkytown" />
-                        <Picker.Item label="Mall Area" value="Mall Area" />
-                        <Picker.Item label="Stadium Village" value="Stadium Village" />
-                    </Picker>
-                </View>
-            )}
+                    <Text style={styles.label}>Location</Text>
+                    {Platform.OS === 'ios' ? (
+                        <Pressable onPress={showLocationPicker} style={styles.input}>
+                            <Text>{campusArea}</Text>
+                        </Pressable>
+                    ) : (
+                        <View style={styles.pickerContainer}>
+                            <Picker
+                                selectedValue={campusArea}
+                                onValueChange={(itemValue) => setCampusArea(itemValue)}
+                            >
+                                <Picker.Item label="East Bank" value="East Bank" />
+                                <Picker.Item label="West Bank" value="West Bank" />
+                                <Picker.Item label="St Paul" value="St Paul" />
+                                <Picker.Item label="Superblock" value="Superblock" />
+                                <Picker.Item label="Dinkytown" value="Dinkytown" />
+                                <Picker.Item label="Mall Area" value="Mall Area" />
+                                <Picker.Item label="Stadium Village" value="Stadium Village" />
+                            </Picker>
+                        </View>
+                    )}
 
-            <Text style={styles.label}>Description</Text>
-            <TextInput
-                style={[styles.input, styles.multilineInput]}
-                placeholder="Description"
-                value={description}
-                onChangeText={setDescription}
-                multiline
-            />
+                    <Text style={styles.label}>Description</Text>
+                    <TextInput
+                        ref={descriptionInputRef}
+                        style={[styles.input, styles.multilineInput]}
+                        placeholder="Description"
+                        value={description}
+                        onChangeText={setDescription}
+                        multiline
+                        returnKeyType="done"
+                        blurOnSubmit={true}
+                    />
 
-            <TouchableOpacity style={styles.actionButton} onPress={handleSubmit}>
-                <Text style={styles.actionButtonText}>{actionLabel}</Text>
-            </TouchableOpacity>
+                    <TouchableOpacity style={styles.actionButton} onPress={handleSubmit}>
+                        <Text style={styles.actionButtonText}>{actionLabel}</Text>
+                    </TouchableOpacity>
 
-            {onCancel && (
-                <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-            )}
+                    {onCancel && (
+                        <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                    )}
 
-            <View style={styles.footerSpacer} />
-        </ScrollView>
+                    <View style={styles.footerSpacer} />
+                </ScrollView>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     );
 }
 
