@@ -1,10 +1,12 @@
 import { Image } from 'expo-image';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { Stack, useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useLayoutEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Markdown from "react-native-markdown-display";
 import EditItemForm from '../../components/EditItemForm';
 import { useItems } from '../../context/ItemsContext';
 import { Item } from '../../data/seedItems';
+import { generateRepairSteps } from "../../utils/ai";
 
 export default function ItemDetail() {
     const { id } = useLocalSearchParams();
@@ -12,6 +14,8 @@ export default function ItemDetail() {
     const navigation = useNavigation();
     const { items, updateItem } = useItems();
     const [isEditing, setIsEditing] = useState(false);
+    const [repairSteps, setRepairSteps] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
 
     const item = items.find((i) => i.id === itemId);
 
@@ -26,7 +30,7 @@ export default function ItemDetail() {
             ),
             title: isEditing ? "Edit Item" : (item?.title || "Item Detail"),
         });
-    }, [navigation, isEditing, item?.title]);
+    }, [navigation, isEditing, item?.title, item]);
 
     if (!item) {
         return (
@@ -43,6 +47,20 @@ export default function ItemDetail() {
         }
     };
 
+    const handleGenerateRepairSteps = async () => {
+        setLoading(true);
+        setRepairSteps(null);
+        try {
+            const steps = await generateRepairSteps(item);
+            setRepairSteps(steps);
+        } catch (error) {
+            console.error(error);
+            setRepairSteps("Failed to generate repair steps. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     if (isEditing) {
         return (
             <EditItemForm
@@ -55,6 +73,7 @@ export default function ItemDetail() {
 
     return (
         <>
+            <Stack.Screen options={{ title: item.title }} />
             <ScrollView style={styles.container}>
                 <Image
                     source={item.imageUri}
@@ -81,11 +100,58 @@ export default function ItemDetail() {
 
                     <Text style={styles.descriptionLabel}>Description</Text>
                     <Text style={styles.description}>{item.description}</Text>
+
+                    <View style={styles.repairSection}>
+                        <TouchableOpacity
+                            style={styles.repairButton}
+                            onPress={handleGenerateRepairSteps}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <ActivityIndicator color="#ffffff" />
+                            ) : (
+                                <Text style={styles.repairButtonText}>
+                                    Generate Repair Steps
+                                </Text>
+                            )}
+                        </TouchableOpacity>
+
+                        {repairSteps && (
+                            <View>
+                                <Text style={styles.repairTitle}>Repair Steps</Text>
+                                <View style={styles.markdownContainer}>
+                                    <Markdown style={markdownStyles}>{repairSteps}</Markdown>
+                                </View>
+                            </View>
+                        )}
+                    </View>
                 </View>
             </ScrollView>
         </>
     );
 }
+
+const markdownStyles = {
+    body: {
+        fontSize: 16,
+        lineHeight: 24,
+        color: "#34495e",
+    },
+    heading3: {
+        fontSize: 18,
+        fontWeight: "bold" as const,
+        marginTop: 16,
+        marginBottom: 8,
+        color: "#2c3e50",
+    },
+    strong: {
+        fontWeight: "bold" as const,
+        color: "#2c3e50",
+    },
+    list_item: {
+        marginBottom: 8,
+    },
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -165,5 +231,38 @@ const styles = StyleSheet.create({
         color: "#007AFF",
         fontSize: 17,
         fontWeight: "600",
+    },
+    repairSection: {
+        marginTop: 30,
+        borderTopWidth: 1,
+        borderTopColor: "#eee",
+        paddingTop: 20,
+    },
+    repairButton: {
+        backgroundColor: "#25bd65",
+        padding: 16,
+        borderRadius: 12,
+        alignItems: "center",
+        marginBottom: 20,
+    },
+    repairButtonText: {
+        color: "#ffffff",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+    repairTitle: {
+        fontSize: 20,
+        fontWeight: "bold",
+        marginBottom: 10,
+        color: "#2c3e50",
+    },
+    markdownContainer: {
+        backgroundColor: "#f8f9fa",
+        padding: 16,
+        borderRadius: 8,
+    },
+    loadingContainer: {
+        padding: 20,
+        alignItems: "center",
     },
 });
