@@ -6,7 +6,7 @@ import { useItems } from '../context/ItemsContext';
 
 export default function Index() {
   const router = useRouter();
-  const { state } = useItems();
+  const { items } = useItems();
 
   const handlePress = (id: string) => {
     router.push(`/item/${id}`);
@@ -21,7 +21,7 @@ export default function Index() {
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <FlatList
-        data={state.items}
+        data={items}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <ItemCard item={item} onPress={() => handlePress(item.id)} />

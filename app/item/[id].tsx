@@ -3,17 +3,17 @@ import { useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useLayoutEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import EditItemForm from '../../components/EditItemForm';
-import { Item } from '../../constants/mockData';
 import { useItems } from '../../context/ItemsContext';
+import { Item } from '../../data/seedItems';
 
 export default function ItemDetail() {
     const { id } = useLocalSearchParams();
     const itemId = Array.isArray(id) ? id[0] : id;
     const navigation = useNavigation();
-    const { state, updateItem } = useItems();
+    const { items, updateItem } = useItems();
     const [isEditing, setIsEditing] = useState(false);
 
-    const item = state.items.find((i) => i.id === itemId);
+    const item = items.find((i) => i.id === itemId);
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -37,8 +37,10 @@ export default function ItemDetail() {
     }
 
     const handleUpdate = (updates: Partial<Item>) => {
-        updateItem(item.id, updates);
-        setIsEditing(false);
+        if (item) {
+            updateItem(item.id, updates);
+            setIsEditing(false);
+        }
     };
 
     if (isEditing) {
@@ -55,7 +57,7 @@ export default function ItemDetail() {
         <>
             <ScrollView style={styles.container}>
                 <Image
-                    source={item.image}
+                    source={item.imageUri}
                     style={styles.image}
                     contentFit="cover"
                     transition={200}
@@ -63,7 +65,7 @@ export default function ItemDetail() {
                 <View style={styles.content}>
                     <View style={styles.header}>
                         <Text style={styles.title}>{item.title}</Text>
-                        <Text style={styles.price}>${item.cost}</Text>
+                        <Text style={styles.price}>{item.price}</Text>
                     </View>
 
                     <View style={styles.badges}>

@@ -1,8 +1,9 @@
 import { Image } from 'expo-image';
 import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Item } from '../data/seedItems';
 
 interface ItemCardProps {
-    item: any; // Using any temporarily to avoid strict type mismatch during conflict resolution
+    item: Item;
     onPress: () => void;
 }
 
@@ -14,7 +15,7 @@ export default function ItemCard({ item, onPress }: ItemCardProps) {
     return (
         <Pressable onPress={onPress} style={styles.card}>
             <Image
-                source={item.image}
+                source={item.imageUri}
                 style={styles.image}
                 contentFit="cover"
                 transition={200}
@@ -23,7 +24,7 @@ export default function ItemCard({ item, onPress }: ItemCardProps) {
                 <Text style={styles.title} numberOfLines={1}>
                     {item.title}
                 </Text>
-                <Text style={styles.price}>${item.cost}</Text>
+                <Text style={styles.price}>{item.price}</Text>
                 <View style={styles.badges}>
                     <Text style={styles.badgeText}>{item.condition}</Text>
                 </View>

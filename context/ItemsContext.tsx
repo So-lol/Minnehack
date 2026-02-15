@@ -1,55 +1,42 @@
-import React, { createContext, ReactNode, useContext, useReducer } from "react";
-import { Item, MOCK_ITEMS } from "../constants/mockData";
+import React, { createContext, ReactNode, useContext, useState } from 'react';
+import { Item, items as seedItems } from '../data/seedItems';
 
-type State = {
+interface ItemsContextType {
     items: Item[];
-};
-
-type Action = {
-    type: "UPDATE_ITEM";
-    payload: {
-        id: string;
-        patch: Partial<Item>;
-    };
-};
-
-const ItemsContext = createContext<{
-    state: State;
+    addItem: (item: Omit<Item, 'id'>) => void;
     updateItem: (id: string, patch: Partial<Item>) => void;
-} | null>(null);
+}
 
-const reducer = (state: State, action: Action): State => {
-    switch (action.type) {
-        case "UPDATE_ITEM":
-            return {
-                ...state,
-                items: state.items.map((item) =>
-                    item.id === action.payload.id ? { ...item, ...action.payload.patch } : item
-                ),
-            };
-        default:
-            return state;
-    }
-};
+const ItemsContext = createContext<ItemsContextType | undefined>(undefined);
 
-export const ItemsProvider = ({ children }: { children: ReactNode }) => {
-    const [state, dispatch] = useReducer(reducer, { items: MOCK_ITEMS });
+export function ItemsProvider({ children }: { children: ReactNode }) {
+    const [items, setItems] = useState<Item[]>(seedItems);
+
+    const addItem = (newItem: Omit<Item, 'id'>) => {
+        const item: Item = {
+            ...newItem,
+            id: Date.now().toString(),
+        };
+        setItems((prev) => [item, ...prev]);
+    };
 
     const updateItem = (id: string, patch: Partial<Item>) => {
-        dispatch({ type: "UPDATE_ITEM", payload: { id, patch } });
+        setItems((prev) =>
+            prev.map((item) => (item.id === id ? { ...item, ...patch } : item))
+        );
     };
 
     return (
-        <ItemsContext.Provider value={{ state, updateItem }}>
+        <ItemsContext.Provider value={{ items, addItem, updateItem }}>
             {children}
         </ItemsContext.Provider>
     );
-};
+}
 
-export const useItems = () => {
+export function useItems() {
     const context = useContext(ItemsContext);
-    if (!context) {
-        throw new Error("useItems must be used within an ItemsProvider");
+    if (context === undefined) {
+        throw new Error('useItems must be used within an ItemsProvider');
     }
     return context;
-};
+}

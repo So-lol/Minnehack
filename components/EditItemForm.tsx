@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { Item } from "../constants/mockData";
+import { Item } from "../data/seedItems";
 
 interface EditItemFormProps {
     item: Item;
@@ -11,25 +11,26 @@ interface EditItemFormProps {
 export default function EditItemForm({ item, onSubmit, onCancel }: EditItemFormProps) {
     const [title, setTitle] = useState(item.title);
     const [description, setDescription] = useState(item.description);
-    const [cost, setCost] = useState(item.cost);
-    const [condition, setCondition] = useState<Item["condition"]>(item.condition);
-    const [campusArea, setCampusArea] = useState<Item["campusArea"]>(item.campusArea);
+    const [price, setPrice] = useState(item.price.replace('$', ''));
+    const [condition, setCondition] = useState<string>(item.condition);
+    const [campusArea, setCampusArea] = useState<string>(item.campusArea);
 
     const handleSave = () => {
-        if (!title.trim() || !description.trim() || !cost.trim()) {
+        if (!title.trim() || !description.trim() || !price.trim()) {
             Alert.alert("Error", "Please fill in all required fields.");
             return;
         }
 
-        if (cost !== "Free" && isNaN(Number(cost))) {
-            Alert.alert("Error", "Cost must be a number or 'Free'.");
+        const numericPrice = price.replace('$', '');
+        if (numericPrice.toLowerCase() !== "free" && isNaN(Number(numericPrice))) {
+            Alert.alert("Error", "Price must be a number or 'Free'.");
             return;
         }
 
         onSubmit({
             title,
             description,
-            cost,
+            price: numericPrice.toLowerCase() === 'free' ? 'Free' : `$${numericPrice}`,
             condition,
             campusArea,
         });
@@ -78,12 +79,12 @@ export default function EditItemForm({ item, onSubmit, onCancel }: EditItemFormP
                 multiline
             />
 
-            <Text style={styles.label}>Cost</Text>
+            <Text style={styles.label}>Price</Text>
             <TextInput
                 style={styles.input}
-                value={cost}
-                onChangeText={setCost}
-                placeholder="Cost (e.g. 10 or Free)"
+                value={price}
+                onChangeText={setPrice}
+                placeholder="Price (e.g. 10 or Free)"
                 keyboardType="default"
             />
 
@@ -92,6 +93,9 @@ export default function EditItemForm({ item, onSubmit, onCancel }: EditItemFormP
                 {renderOption("Working", "Working", condition, setCondition)}
                 {renderOption("Broken", "Broken", condition, setCondition)}
                 {renderOption("For parts", "For parts", condition, setCondition)}
+                {renderOption("Excellent", "Excellent", condition, setCondition)}
+                {renderOption("Good", "Good", condition, setCondition)}
+                {renderOption("Fair", "Fair", condition, setCondition)}
             </View>
 
             <Text style={styles.label}>Campus Area</Text>
@@ -99,6 +103,8 @@ export default function EditItemForm({ item, onSubmit, onCancel }: EditItemFormP
                 {renderOption("East Bank", "East Bank", campusArea, setCampusArea)}
                 {renderOption("West Bank", "West Bank", campusArea, setCampusArea)}
                 {renderOption("St Paul", "St Paul", campusArea, setCampusArea)}
+                {renderOption("Superblock", "Superblock", campusArea, setCampusArea)}
+                {renderOption("Dinkytown", "Dinkytown", campusArea, setCampusArea)}
             </View>
 
             <View style={styles.buttonContainer}>
