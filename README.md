@@ -11,8 +11,6 @@
 
 ## Run on your device
 
-To run the app on your physical device, follow these steps:
-
 1.  **Download Expo Go**
 
 2.  **Start the Development Server**
