@@ -60,7 +60,7 @@ export interface RepairData {
 export async function generateRepairSteps(item: Item): Promise<RepairData> {
   try {
     let imagePart = null;
-    if (item.imageUri) {
+    if (item.imageUri && typeof item.imageUri === 'string') {
       const mimeType = item.imageUri.toLowerCase().endsWith(".png")
         ? "image/png"
         : "image/jpeg";

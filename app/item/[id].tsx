@@ -1,36 +1,25 @@
 import { Image } from 'expo-image';
-import { Stack, useLocalSearchParams, useNavigation } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import React, { useLayoutEffect, useState } from 'react';
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import EditItemForm from '../../components/EditItemForm';
 import { useItems } from '../../context/ItemsContext';
-import { Item } from '../../data/seedItems';
 import { generateRepairSteps, RepairData } from "../../utils/ai";
 
 export default function ItemDetail() {
     const { id } = useLocalSearchParams();
     const itemId = Array.isArray(id) ? id[0] : id;
-    const navigation = useNavigation();
-    const { items, updateItem } = useItems();
-    const [isEditing, setIsEditing] = useState(false);
+    const { items } = useItems();
     const [repairData, setRepairData] = useState<RepairData | null>(null);
     const [loading, setLoading] = useState(false);
 
     const item = items.find((i) => i.id === itemId);
 
     useLayoutEffect(() => {
-        navigation.setOptions({
-            headerRight: () => (
-                !isEditing ? (
-                    <TouchableOpacity onPress={() => setIsEditing(true)} style={styles.headerButtonContainer}>
-                        <Text style={styles.headerButtonText}>Edit</Text>
-                    </TouchableOpacity>
-                ) : null
-            ),
-            title: isEditing ? "Edit Item" : (item?.title || "Item Detail"),
-        });
-    }, [navigation, isEditing, item?.title, item]);
+        if (!item) return;
 
+        // No custom options needed for title/header visibility since we aren't inline editing anymore
+        // But we DO want the Edit button
+    }, [item]);
 
     if (!item) {
         return (
@@ -39,13 +28,6 @@ export default function ItemDetail() {
             </View>
         );
     }
-
-    const handleUpdate = (updates: Partial<Item>) => {
-        if (item) {
-            updateItem(item.id, updates);
-            setIsEditing(false);
-        }
-    };
 
     const handleGenerateRepairSteps = async () => {
         setLoading(true);
@@ -61,19 +43,18 @@ export default function ItemDetail() {
         }
     };
 
-    if (isEditing) {
-        return (
-            <EditItemForm
-                item={item}
-                onSubmit={handleUpdate}
-                onCancel={() => setIsEditing(false)}
-            />
-        );
-    }
-
     return (
         <>
-            <Stack.Screen options={{ title: item.title }} />
+            <Stack.Screen
+                options={{
+                    title: item.title,
+                    headerRight: () => (
+                        <TouchableOpacity onPress={() => router.push(`/edit/${item.id}` as any)} style={styles.headerButtonContainer}>
+                            <Text style={styles.headerButtonText}>Edit</Text>
+                        </TouchableOpacity>
+                    ),
+                }}
+            />
             <ScrollView style={styles.container}>
                 <Image
                     source={item.imageUri}
@@ -90,16 +71,37 @@ export default function ItemDetail() {
                     <View style={styles.badges}>
                         <View style={styles.badge}>
                             <Text style={styles.badgeLabel}>Condition</Text>
-                            <Text style={styles.badgeValue}>{item.condition}</Text>
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.badgeScroll}
+                                contentContainerStyle={styles.badgeScrollContent}
+                            >
+                                <Text style={styles.badgeValue} numberOfLines={1}>{item.condition}</Text>
+                            </ScrollView>
                         </View>
                         <View style={styles.badge}>
                             <Text style={styles.badgeLabel}>Location</Text>
-                            <Text style={styles.badgeValue}>{item.campusArea}</Text>
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.badgeScroll}
+                                contentContainerStyle={styles.badgeScrollContent}
+                            >
+                                <Text style={styles.badgeValue} numberOfLines={1}>{item.campusArea}</Text>
+                            </ScrollView>
                         </View>
                         {item.email && (
                             <View style={styles.badge}>
                                 <Text style={styles.badgeLabel}>Contact</Text>
-                                <Text style={styles.badgeValue} numberOfLines={1}>{item.email}</Text>
+                                <ScrollView
+                                    horizontal
+                                    showsHorizontalScrollIndicator={false}
+                                    style={styles.badgeScroll}
+                                    contentContainerStyle={styles.badgeScrollContent}
+                                >
+                                    <Text style={styles.badgeValue} numberOfLines={1}>{item.email}</Text>
+                                </ScrollView>
                             </View>
                         )}
                     </View>
@@ -228,9 +230,18 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 8,
         alignItems: 'center',
-        minWidth: 100,
+        flex: 1, // Allow badges to share available width equally
+        minWidth: 0, // Allow shrinking if needed, or remove minWidth constraint that forces overflow
         borderWidth: 1,
         borderColor: '#eee',
+    },
+    badgeScroll: {
+        width: '100%',
+    },
+    badgeScrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     badgeLabel: {
         fontSize: 12,
