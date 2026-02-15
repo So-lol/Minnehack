@@ -1,122 +1,231 @@
-import { Image } from 'expo-image';
-import { Stack, useLocalSearchParams } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useItems } from '../../context/ItemsContext';
+import { Image } from "expo-image";
+import { Stack, useLocalSearchParams } from "expo-router";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { useItems } from "../../context/ItemsContext";
+import { useState } from "react";
+import { generateRepairSteps } from "../../utils/ai";
+import Markdown from "react-native-markdown-display";
+
 
 export default function ItemDetail() {
-    const { id } = useLocalSearchParams();
-    const { items } = useItems();
-    const item = items.find((i) => i.id === id);
+  const { id } = useLocalSearchParams();
+  const { items } = useItems();
+  const item = items.find((i) => i.id === id);
+  const [repairSteps, setRepairSteps] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-    if (!item) {
-        return (
-            <View style={styles.center}>
-                <Text>Item not found</Text>
-            </View>
-        );
-    }
-
+  if (!item) {
     return (
-        <>
-            <Stack.Screen options={{ title: item.title }} />
-            <ScrollView style={styles.container}>
-                <Image
-                    source={item.imageUri}
-                    style={styles.image}
-                    contentFit="cover"
-                    transition={200}
-                />
-                <View style={styles.content}>
-                    <View style={styles.header}>
-                        <Text style={styles.title}>{item.title}</Text>
-                        <Text style={styles.price}>{item.price}</Text>
-                    </View>
-
-                    <View style={styles.badges}>
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeLabel}>Condition</Text>
-                            <Text style={styles.badgeValue}>{item.condition}</Text>
-                        </View>
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeLabel}>Location</Text>
-                            <Text style={styles.badgeValue}>{item.campusArea}</Text>
-                        </View>
-                    </View>
-
-                    <Text style={styles.descriptionLabel}>Description</Text>
-                    <Text style={styles.description}>{item.description}</Text>
-                </View>
-            </ScrollView>
-        </>
+      <View style={styles.center}>
+        <Text>Item not found</Text>
+      </View>
     );
+  }
+
+  const handleGenerateRepairSteps = async () => {
+    setLoading(true);
+    setRepairSteps(null);
+    try {
+      const steps = await generateRepairSteps(item);
+      setRepairSteps(steps);
+    } catch (error) {
+      console.error(error);
+      setRepairSteps("Failed to generate repair steps. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Stack.Screen options={{ title: item.title }} />
+      <ScrollView style={styles.container}>
+        <Image
+          source={item.imageUri}
+          style={styles.image}
+          contentFit="cover"
+          transition={200}
+        />
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text style={styles.title}>{item.title}</Text>
+            <Text style={styles.price}>{item.price}</Text>
+          </View>
+
+          <View style={styles.badges}>
+            <View style={styles.badge}>
+              <Text style={styles.badgeLabel}>Condition</Text>
+              <Text style={styles.badgeValue}>{item.condition}</Text>
+            </View>
+            <View style={styles.badge}>
+              <Text style={styles.badgeLabel}>Location</Text>
+              <Text style={styles.badgeValue}>{item.campusArea}</Text>
+            </View>
+          </View>
+
+          <Text style={styles.descriptionLabel}>Description</Text>
+          <Text style={styles.description}>{item.description}</Text>
+
+          <View style={styles.repairSection}>
+            <TouchableOpacity
+              style={styles.repairButton}
+              onPress={handleGenerateRepairSteps}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text style={styles.repairButtonText}>
+                  Generate Repair Steps
+                </Text>
+              )}
+            </TouchableOpacity>
+
+            {repairSteps && (
+              <View>
+                <Text style={styles.repairTitle}>Repair Steps</Text>
+                <View style={styles.markdownContainer}>
+                  <Markdown style={markdownStyles}>{repairSteps}</Markdown>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+      </ScrollView>
+    </>
+  );
 }
 
+const markdownStyles = {
+  body: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: "#34495e",
+  },
+  heading3: {
+    fontSize: 18,
+    fontWeight: "bold" as const,
+    marginTop: 16,
+    marginBottom: 8,
+    color: "#2c3e50",
+  },
+  strong: {
+    fontWeight: "bold" as const,
+    color: "#2c3e50",
+  },
+  list_item: {
+    marginBottom: 8,
+  },
+};
+
+
+
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#ffffff',
-    },
-    center: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    image: {
-        width: '100%',
-        height: 300,
-        backgroundColor: '#ffffff',
-    },
-    content: {
-        padding: 20,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        flex: 1,
-        marginRight: 10,
-    },
-    price: {
-        fontSize: 24,
-        fontWeight: '600',
-        color: '#25bd65ff',
-    },
-    badges: {
-        flexDirection: 'row',
-        marginBottom: 24,
-        gap: 16,
-    },
-    badge: {
-        backgroundColor: '#ffffff',
-        padding: 10,
-        borderRadius: 8,
-        alignItems: 'center',
-        minWidth: 100,
-    },
-    badgeLabel: {
-        fontSize: 12,
-        color: '#7f8c8d',
-        marginBottom: 4,
-    },
-    badgeValue: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#2c3e50',
-    },
-    descriptionLabel: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 8,
-        color: '#2c3e50',
-    },
-    description: {
-        fontSize: 16,
-        lineHeight: 24,
-        color: '#34495e',
-    },
+  container: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: "100%",
+    height: 300,
+    backgroundColor: "#ffffff",
+  },
+  content: {
+    padding: 20,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    flex: 1,
+    marginRight: 10,
+  },
+  price: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#25bd65ff",
+  },
+  badges: {
+    flexDirection: "row",
+    marginBottom: 24,
+    gap: 16,
+  },
+  badge: {
+    backgroundColor: "#ffffff",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    minWidth: 100,
+  },
+  badgeLabel: {
+    fontSize: 12,
+    color: "#7f8c8d",
+    marginBottom: 4,
+  },
+  badgeValue: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#2c3e50",
+  },
+  descriptionLabel: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#2c3e50",
+  },
+  description: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: "#34495e",
+  },
+  repairSection: {
+    marginTop: 30,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    paddingTop: 20,
+  },
+  repairButton: {
+    backgroundColor: "#25bd65ff",
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  repairButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  repairTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#2c3e50",
+  },
+  markdownContainer: {
+    backgroundColor: "#f8f9fa",
+    padding: 16,
+    borderRadius: 8,
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: "center",
+  },
 });
