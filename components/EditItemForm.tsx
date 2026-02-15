@@ -12,6 +12,7 @@ export default function EditItemForm({ item, onSubmit, onCancel }: EditItemFormP
     const [title, setTitle] = useState(item.title);
     const [description, setDescription] = useState(item.description);
     const [price, setPrice] = useState(item.price.replace('$', ''));
+    const [email, setEmail] = useState(item.email || '');
     const [condition, setCondition] = useState<string>(item.condition);
     const [campusArea, setCampusArea] = useState<string>(item.campusArea);
 
@@ -33,6 +34,7 @@ export default function EditItemForm({ item, onSubmit, onCancel }: EditItemFormP
             price: numericPrice.toLowerCase() === 'free' ? 'Free' : `$${numericPrice}`,
             condition,
             campusArea,
+            email,
         });
     };
 
@@ -77,6 +79,16 @@ export default function EditItemForm({ item, onSubmit, onCancel }: EditItemFormP
                 onChangeText={setDescription}
                 placeholder="Description"
                 multiline
+            />
+
+            <Text style={styles.label}>Email (UMN)</Text>
+            <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Email"
+                autoCapitalize="none"
+                keyboardType="email-address"
             />
 
             <Text style={styles.label}>Price</Text>
