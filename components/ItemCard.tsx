@@ -35,29 +35,35 @@ export default function ItemCard({ item, onPress }: ItemCardProps) {
 
 const styles = StyleSheet.create({
     card: {
-        flex: 1,
         backgroundColor: '#fff',
         borderRadius: 8,
         margin: 6,
         overflow: 'hidden',
         maxWidth: cardWidth,
+        flex: 1,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
     image: {
         width: '100%',
         height: 150,
-        backgroundColor: '#ffffff',
+        backgroundColor: '#eee',
     },
     content: {
-        padding: 8,
+        padding: 10,
     },
     title: {
         fontSize: 14,
         fontWeight: 'bold',
+        color: '#1a1a1a',
         marginBottom: 4,
     },
     price: {
         fontSize: 14,
-        color: '#25bd65ff',
+        color: '#25bd65',
         fontWeight: '600',
         marginBottom: 4,
     },
@@ -67,8 +73,8 @@ const styles = StyleSheet.create({
     },
     badgeText: {
         fontSize: 10,
-        color: '#8a9a9cff',
-        backgroundColor: '#ffffffff',
+        color: '#8a9a9c',
+        backgroundColor: '#f5f5f5',
         paddingHorizontal: 6,
         paddingVertical: 2,
         borderRadius: 4,

@@ -1,10 +1,10 @@
-
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { Item, items as seedItems } from '../data/seedItems';
 
 interface ItemsContextType {
     items: Item[];
     addItem: (item: Omit<Item, 'id'>) => void;
+    updateItem: (id: string, patch: Partial<Item>) => void;
 }
 
 const ItemsContext = createContext<ItemsContextType | undefined>(undefined);
@@ -20,8 +20,14 @@ export function ItemsProvider({ children }: { children: ReactNode }) {
         setItems((prev) => [item, ...prev]);
     };
 
+    const updateItem = (id: string, patch: Partial<Item>) => {
+        setItems((prev) =>
+            prev.map((item) => (item.id === id ? { ...item, ...patch } : item))
+        );
+    };
+
     return (
-        <ItemsContext.Provider value={{ items, addItem }}>
+        <ItemsContext.Provider value={{ items, addItem, updateItem }}>
             {children}
         </ItemsContext.Provider>
     );

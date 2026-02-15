@@ -17,6 +17,7 @@ export default function Index() {
 
   useEffect(() => {
     const fetchData = async () => {
+      // Simulate network delay
       await new Promise((resolve) => setTimeout(resolve, 800));
       setIsLoading(false);
     };
@@ -64,8 +65,6 @@ export default function Index() {
       </View>
     );
   };
-
-
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
