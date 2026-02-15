@@ -16,7 +16,7 @@ export const MOCK_ITEMS: Item[] = [
         cost: "40",
         condition: "Working",
         campusArea: "East Bank",
-        image: "https://via.placeholder.com/150",
+        image: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fi.ebayimg.com%2Fimages%2Fg%2F8OIAAOSwu-Vm9yIa%2Fs-l960.jpg&sp=1771172571T5a5abe23074c0b4ce49aa201111ce40491db6a69b3f09e29761b96d01587e6e2",
     },
     {
         id: "2",
@@ -25,7 +25,7 @@ export const MOCK_ITEMS: Item[] = [
         cost: "15",
         condition: "Working",
         campusArea: "West Bank",
-        image: "https://via.placeholder.com/150",
+        image: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fm.media-amazon.com%2Fimages%2FI%2F51-cYOhLWrL.jpg&sp=1771172345Td54e2c45dd570636e11c3b8bd13ea0cc282a868dc371947bd74bb1240573c8c2",
     },
     {
         id: "3",
@@ -34,7 +34,7 @@ export const MOCK_ITEMS: Item[] = [
         cost: "80",
         condition: "Working",
         campusArea: "East Bank",
-        image: "https://via.placeholder.com/150",
+        image: "https://i.ebayimg.com/images/g/uJAAAeSwF9hpYmjL/s-l1600.webp",
     },
     {
         id: "4",
@@ -43,7 +43,7 @@ export const MOCK_ITEMS: Item[] = [
         cost: "10",
         condition: "Working",
         campusArea: "St Paul",
-        image: "https://via.placeholder.com/150",
+        image: "https://i.ebayimg.com/images/g/BNkAAeSwo7hpkMX2/s-l1600.webp",
     },
     {
         id: "5",
@@ -52,7 +52,7 @@ export const MOCK_ITEMS: Item[] = [
         cost: "30",
         condition: "Working",
         campusArea: "East Bank",
-        image: "https://via.placeholder.com/150",
+        image: "https://i.ebayimg.com/thumbs/images/g/WHgAAeSwQ1JpVC7n/s-l300.webp",
     },
     {
         id: "6",
@@ -61,6 +61,6 @@ export const MOCK_ITEMS: Item[] = [
         cost: "10",
         condition: "Working",
         campusArea: "West Bank",
-        image: "https://via.placeholder.com/150",
+        image: "https://i.ebayimg.com/images/g/QJ8AAeSwXNtpijzw/s-l1600.webp",
     },
 ];

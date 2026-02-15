@@ -8,6 +8,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ title: "Gopher Exchange" }} />
         <Stack.Screen name="item/[id]" options={{ title: "Details" }} />
         <Stack.Screen name="create" options={{ presentation: 'modal', title: 'List Item' }} />
+        <Stack.Screen name="edit/[id]" options={{ presentation: 'modal', title: 'List Item' }} />
       </Stack>
     </ItemsProvider>
   );
