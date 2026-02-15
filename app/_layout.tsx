@@ -5,7 +5,8 @@ export default function RootLayout() {
   return (
     <ItemsProvider>
       <Stack>
-        <Stack.Screen name="index" options={{ title: "Home" }} />
+        <Stack.Screen name="index" options={{ title: "Campus Marketplace" }} />
+        <Stack.Screen name="item/[id]" options={{ title: "Details" }} />
       </Stack>
     </ItemsProvider>
   );
