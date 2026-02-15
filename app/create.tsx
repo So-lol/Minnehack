@@ -6,7 +6,6 @@ import { Item } from '../data/seedItems';
 export default function CreateItem() {
     const router = useRouter();
     const { addItem } = useItems();
-
     const handleCreate = (itemData: Omit<Item, 'id'>) => {
         addItem(itemData);
         router.back();
@@ -14,5 +13,7 @@ export default function CreateItem() {
 
     return (
         <ItemForm mode="add" onSubmit={handleCreate as any} />
+    );
+}
     );
 }

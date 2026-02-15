@@ -1,5 +1,7 @@
 ## Get started
 
+0. Get gemini api key from https://aistudio.google.com/app/apikey
+
 1. Install dependencies
    npm install
    

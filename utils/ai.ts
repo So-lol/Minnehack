@@ -37,7 +37,27 @@ async function urlToGenerativePart(url: string, mimeType: string) {
   }
 }
 
-export async function generateRepairSteps(item: Item): Promise<string> {
+export interface RepairStep {
+  stepNumber: number;
+  title: string;
+  description: string;
+  tools: string[];
+  links: { text: string; url: string }[];
+}
+
+export interface CostItem {
+  item: string;
+  cost: string;
+  source: string;
+}
+
+export interface RepairData {
+  steps: RepairStep[];
+  costTable: CostItem[];
+  totalCost: string;
+}
+
+export async function generateRepairSteps(item: Item): Promise<RepairData> {
   try {
     let imagePart = null;
     if (item.imageUri) {
@@ -55,33 +75,40 @@ Condition: ${item.condition}
 
 Please verify the image if provided, and use it to better understand the item's condition and model.
 
-Format the output as a Markdown document. Use headers (###) for steps and bold text for emphasis.
+Output STRICT JSON format with the following structure:
+{
+  "steps": [
+    {
+      "stepNumber": number,
+      "title": "string",
+      "description": "string",
+      "tools": ["tool1", "tool2"],
+      "links": [{ "text": "display text", "url": "valid url" }]
+    }
+  ],
+  "costTable": [
+    { "item": "part/material name", "cost": "estimated cost", "source": "where to buy (generic)" }
+  ],
+  "totalCost": "estimated total cost range"
+}
 
-Start with a brief overview.
+Ensure "links" point to real or plausible search queries/tutorials (e.g. if specific URL unknown, use a search URL).
+`;
 
-Then provide the steps in this format used for every step:
-### Step 1: [Title of repair step]
-- **Material**: [List of materials needed]
-- **Description**: [Detailed description of the step]
-- **Links to research**: [One or two relevant links to tutorials or guides if applicable, otherwise "None"]
-
-...
-
-At the VERY END, provide an estimated cost breakdown:
-### Estimated Cost
-- **Materials**: [Estimated cost range for materials]
-- **Labor**: [Estimated cost range if hired out, or "DIY (0)"]
-- **Total**: [Total estimated cost range]
-        `;
-
-    const parts: any[] = [prompt];
+    const parts: any[] = [{ text: prompt }];
     if (imagePart) {
       parts.push(imagePart);
     }
 
-    const result = await model.generateContent(parts);
+    // Force JSON response
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts }],
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
     const response = await result.response;
-    return response.text();
+    const text = response.text();
+    return JSON.parse(text) as RepairData;
   } catch (error) {
     console.error("Error generating repair steps:", error);
     throw error;
