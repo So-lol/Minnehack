@@ -13,7 +13,7 @@ export default function CreateItem() {
     const [image, setImage] = useState<string | null>(null);
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [condition, setCondition] = useState('Good');
+    const [condition, setCondition] = useState('Working');
     const [campusArea, setCampusArea] = useState('East Bank');
 
     const pickImage = async () => {
@@ -38,13 +38,16 @@ export default function CreateItem() {
         if (Platform.OS === 'ios') {
             ActionSheetIOS.showActionSheetWithOptions(
                 {
-                    options: ['Cancel', 'Bad', 'Good', 'Great'],
+                    options: ['Cancel', 'Working', 'Broken', 'For parts', 'Excellent', 'Good', 'Fair'],
                     cancelButtonIndex: 0,
                 },
                 (buttonIndex) => {
-                    if (buttonIndex === 1) setCondition('Bad');
-                    if (buttonIndex === 2) setCondition('Good');
-                    if (buttonIndex === 3) setCondition('Great');
+                    if (buttonIndex === 1) setCondition('Working');
+                    if (buttonIndex === 2) setCondition('Broken');
+                    if (buttonIndex === 3) setCondition('For parts');
+                    if (buttonIndex === 4) setCondition('Excellent');
+                    if (buttonIndex === 5) setCondition('Good');
+                    if (buttonIndex === 6) setCondition('Fair');
                 }
             );
         }
@@ -54,13 +57,15 @@ export default function CreateItem() {
         if (Platform.OS === 'ios') {
             ActionSheetIOS.showActionSheetWithOptions(
                 {
-                    options: ['Cancel', 'East Bank', 'West Bank', 'St Paul'],
+                    options: ['Cancel', 'East Bank', 'West Bank', 'St Paul', 'Superblock', 'Dinkytown'],
                     cancelButtonIndex: 0,
                 },
                 (buttonIndex) => {
                     if (buttonIndex === 1) setCampusArea('East Bank');
                     if (buttonIndex === 2) setCampusArea('West Bank');
                     if (buttonIndex === 3) setCampusArea('St Paul');
+                    if (buttonIndex === 4) setCampusArea('Superblock');
+                    if (buttonIndex === 5) setCampusArea('Dinkytown');
                 }
             );
         }
@@ -83,9 +88,12 @@ export default function CreateItem() {
             ) : (
                 <View style={styles.pickerContainer}>
                     <Picker selectedValue={condition} onValueChange={(itemValue) => setCondition(itemValue)}>
-                        <Picker.Item label="Bad" value="Bad" />
+                        <Picker.Item label="Working" value="Working" />
+                        <Picker.Item label="Broken" value="Broken" />
+                        <Picker.Item label="For parts" value="For parts" />
+                        <Picker.Item label="Excellent" value="Excellent" />
                         <Picker.Item label="Good" value="Good" />
-                        <Picker.Item label="Great" value="Great" />
+                        <Picker.Item label="Fair" value="Fair" />
                     </Picker>
                 </View>
             )}
@@ -101,6 +109,8 @@ export default function CreateItem() {
                         <Picker.Item label="East Bank" value="East Bank" />
                         <Picker.Item label="West Bank" value="West Bank" />
                         <Picker.Item label="St Paul" value="St Paul" />
+                        <Picker.Item label="Superblock" value="Superblock" />
+                        <Picker.Item label="Dinkytown" value="Dinkytown" />
                     </Picker>
                 </View>
             )}
