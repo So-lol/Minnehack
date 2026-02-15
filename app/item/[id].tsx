@@ -71,16 +71,37 @@ export default function ItemDetail() {
                     <View style={styles.badges}>
                         <View style={styles.badge}>
                             <Text style={styles.badgeLabel}>Condition</Text>
-                            <Text style={styles.badgeValue}>{item.condition}</Text>
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.badgeScroll}
+                                contentContainerStyle={styles.badgeScrollContent}
+                            >
+                                <Text style={styles.badgeValue} numberOfLines={1}>{item.condition}</Text>
+                            </ScrollView>
                         </View>
                         <View style={styles.badge}>
                             <Text style={styles.badgeLabel}>Location</Text>
-                            <Text style={styles.badgeValue}>{item.campusArea}</Text>
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.badgeScroll}
+                                contentContainerStyle={styles.badgeScrollContent}
+                            >
+                                <Text style={styles.badgeValue} numberOfLines={1}>{item.campusArea}</Text>
+                            </ScrollView>
                         </View>
                         {item.email && (
                             <View style={styles.badge}>
                                 <Text style={styles.badgeLabel}>Contact</Text>
-                                <Text style={styles.badgeValue} numberOfLines={1}>{item.email}</Text>
+                                <ScrollView
+                                    horizontal
+                                    showsHorizontalScrollIndicator={false}
+                                    style={styles.badgeScroll}
+                                    contentContainerStyle={styles.badgeScrollContent}
+                                >
+                                    <Text style={styles.badgeValue} numberOfLines={1}>{item.email}</Text>
+                                </ScrollView>
                             </View>
                         )}
                     </View>
@@ -209,9 +230,18 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 8,
         alignItems: 'center',
-        minWidth: 100,
+        flex: 1, // Allow badges to share available width equally
+        minWidth: 0, // Allow shrinking if needed, or remove minWidth constraint that forces overflow
         borderWidth: 1,
         borderColor: '#eee',
+    },
+    badgeScroll: {
+        width: '100%',
+    },
+    badgeScrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     badgeLabel: {
         fontSize: 12,
