@@ -12,6 +12,7 @@ export default function CreateItem() {
     const { addItem } = useItems();
     const [image, setImage] = useState<string | null>(null);
     const [title, setTitle] = useState('');
+    const [email, setEmail] = useState('');
     const [description, setDescription] = useState('');
     const [condition, setCondition] = useState('Working');
     const [campusArea, setCampusArea] = useState('East Bank');
@@ -22,7 +23,7 @@ export default function CreateItem() {
     };
 
     const handleCreate = () => {
-        if (!image || !title || !description) return alert('Fill all fields');
+        if (!image || !title || !description || !email) return alert('Fill all fields');
         addItem({
             title,
             description,
@@ -30,6 +31,7 @@ export default function CreateItem() {
             price: 'Free',
             condition,
             campusArea,
+            email,
         });
         router.back();
     };
@@ -79,6 +81,9 @@ export default function CreateItem() {
 
             <Text style={styles.label}>Title</Text>
             <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
+
+            <Text style={styles.label}>Email (UMN)</Text>
+            <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
 
             <Text style={styles.label}>Condition</Text>
             {Platform.OS === 'ios' ? (
