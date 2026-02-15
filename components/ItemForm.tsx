@@ -24,7 +24,7 @@ interface ItemFormProps {
 }
 
 export default function ItemForm({ mode, initialItem, onSubmit, onCancel }: ItemFormProps) {
-    const [image, setImage] = useState<string | null>(initialItem?.imageUri || null);
+    const [image, setImage] = useState<string | number | null>(initialItem?.imageUri || null);
     const [title, setTitle] = useState(initialItem?.title || '');
     const [email, setEmail] = useState(initialItem?.email || '');
     const [condition, setCondition] = useState(initialItem?.condition || 'Good');
@@ -106,7 +106,7 @@ export default function ItemForm({ mode, initialItem, onSubmit, onCancel }: Item
 
             <Pressable onPress={pickImage} style={styles.imageBox}>
                 {image ? (
-                    <Image source={{ uri: image }} style={styles.img} />
+                    <Image source={typeof image === 'number' ? image : { uri: image }} style={styles.img} />
                 ) : (
                     <Text style={styles.selectImageText}>Select Image</Text>
                 )}
