@@ -1,3 +1,27 @@
+export const CONDITIONS = [
+  "Bad",
+  "Fair",
+  "Good",
+  "Great",
+  "Excellent",
+  "Working",
+  "Broken",
+  "For parts"
+] as const;
+
+export const LOCATIONS = [
+  "East Bank",
+  "West Bank",
+  "St Paul",
+  "Superblock",
+  "Dinkytown",
+  "Mall Area",
+  "Stadium Village"
+] as const;
+
+export type Condition = typeof CONDITIONS[number];
+export type LocationArea = typeof LOCATIONS[number];
+
 export interface Item {
   id: string;
   title: string;
@@ -36,7 +60,7 @@ export const items: Item[] = [
     description: 'White lab coat, size Medium. Required for chemistry labs. No stains.',
     imageUri: require('../assets/items/lab_coat.jpg'),
     price: '$10',
-    condition: 'Like New',
+    condition: 'Excellent',
     campusArea: 'Mall Area',
     email: 'chemstudent@umn.edu',
   },
@@ -90,4 +114,34 @@ export const items: Item[] = [
     campusArea: 'Stadium Village',
     email: 'gamer1@umn.edu',
   },
+  {
+    id: '9',
+    title: 'Psychology Textbook',
+    description: 'Intro to Psychology 101. Highlighted in a few chapters but otherwise good condition.',
+    imageUri: require('../assets/items/textbook.jpg'),
+    price: '$20',
+    condition: 'Good',
+    campusArea: 'East Bank',
+    email: 'psych_major@umn.edu',
+  },
+  {
+    id: '10',
+    title: 'Bike Lock',
+    description: 'Heavy duty U-lock with key. Don\'t need it anymore.',
+    imageUri: require('../assets/items/bikelock.jpg'),
+    price: '$15',
+    condition: 'Great',
+    campusArea: 'Dinkytown',
+    email: 'commuter@umn.edu',
+  },
+  {
+    id: '11',
+    title: 'Calculator TI-84',
+    description: 'Color screen. Essential for calculus classes.',
+    imageUri: require('../assets/items/calculator.jpg'),
+    price: '$60',
+    condition: 'Working',
+    campusArea: 'East Bank',
+    email: 'math_geek@umn.edu',
+  }
 ];
