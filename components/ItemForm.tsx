@@ -17,7 +17,7 @@ import {
     TouchableWithoutFeedback,
     View
 } from 'react-native';
-import { Item } from '../data/seedItems';
+import { CONDITIONS, Item, LOCATIONS } from '../data/seedItems';
 
 interface ItemFormProps {
     mode: 'add' | 'edit';
@@ -69,7 +69,7 @@ export default function ItemForm({ mode, initialItem, onSubmit, onCancel }: Item
     };
 
     const showConditionPicker = () => {
-        const options = ['Cancel', 'Bad', 'Good', 'Great', 'Excellent', 'Fair', 'Working', 'Broken', 'For parts'];
+        const options = ['Cancel', ...CONDITIONS];
         if (Platform.OS === 'ios') {
             ActionSheetIOS.showActionSheetWithOptions(
                 {
@@ -86,7 +86,7 @@ export default function ItemForm({ mode, initialItem, onSubmit, onCancel }: Item
     };
 
     const showLocationPicker = () => {
-        const options = ['Cancel', 'East Bank', 'West Bank', 'St Paul', 'Superblock', 'Dinkytown', 'Mall Area', 'Stadium Village'];
+        const options = ['Cancel', ...LOCATIONS];
         if (Platform.OS === 'ios') {
             ActionSheetIOS.showActionSheetWithOptions(
                 {
@@ -163,14 +163,9 @@ export default function ItemForm({ mode, initialItem, onSubmit, onCancel }: Item
                                 selectedValue={condition}
                                 onValueChange={(itemValue) => setCondition(itemValue)}
                             >
-                                <Picker.Item label="Bad" value="Bad" />
-                                <Picker.Item label="Good" value="Good" />
-                                <Picker.Item label="Great" value="Great" />
-                                <Picker.Item label="Excellent" value="Excellent" />
-                                <Picker.Item label="Fair" value="Fair" />
-                                <Picker.Item label="Working" value="Working" />
-                                <Picker.Item label="Broken" value="Broken" />
-                                <Picker.Item label="For parts" value="For parts" />
+                                {CONDITIONS.map((cond) => (
+                                    <Picker.Item key={cond} label={cond} value={cond} />
+                                ))}
                             </Picker>
                         </View>
                     )}
@@ -186,13 +181,9 @@ export default function ItemForm({ mode, initialItem, onSubmit, onCancel }: Item
                                 selectedValue={campusArea}
                                 onValueChange={(itemValue) => setCampusArea(itemValue)}
                             >
-                                <Picker.Item label="East Bank" value="East Bank" />
-                                <Picker.Item label="West Bank" value="West Bank" />
-                                <Picker.Item label="St Paul" value="St Paul" />
-                                <Picker.Item label="Superblock" value="Superblock" />
-                                <Picker.Item label="Dinkytown" value="Dinkytown" />
-                                <Picker.Item label="Mall Area" value="Mall Area" />
-                                <Picker.Item label="Stadium Village" value="Stadium Village" />
+                                {LOCATIONS.map((loc) => (
+                                    <Picker.Item key={loc} label={loc} value={loc} />
+                                ))}
                             </Picker>
                         </View>
                     )}
